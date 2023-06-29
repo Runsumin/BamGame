@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace BamGame
+namespace Game
 {
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     //
@@ -66,13 +66,14 @@ namespace BamGame
         {
             Instance = this;
             DontDestroyOnLoad(this);
-            DontDestroyOnLoad(Root.ClientRoot);
-            DontDestroyOnLoad(Root.CanvasRoot);
         }
         #endregion
 
         #region [Init] [Start]
-
+        public void Start()
+        {
+            SceneManager.Instance.LoadScene("BamGame_Lobby");
+        }
         #endregion
     }
 

@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-namespace BamGame
+namespace Game
 {
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     //
@@ -35,11 +36,13 @@ namespace BamGame
         //
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-        #region [Variable] Base
+        #region [Variable] BaseSetting
 
         #endregion
 
-
+        #region [Variable] Window
+        protected RectTransform _rectTransform;
+        #endregion
 
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // Property
@@ -60,15 +63,31 @@ namespace BamGame
 
         #region [Init] 
         //------------------------------------------------------------------------------------------------------------------------------------------------------
-        #endregion
- 
-        #region [Virtual] Awake
-        public virtual void Awake() { }
-        #endregion
-
-        #region [Virtual] Start
+        public virtual void Awake()
+        {
+            _rectTransform = GetComponent<RectTransform>();
+        }
         public virtual void Start() { }
         #endregion
 
+        #region [Window] Open
+        public virtual void OpenWindow()
+        {
+            gameObject.SetActive(true);
+        }
+        public virtual bool IsOpen => (this != null) && (gameObject != null) && gameObject.activeSelf;
+        #endregion
+
+        #region [Window] CloseWindow
+        public virtual void CloseWindow(bool destroy)
+        {
+            if (destroy)
+            {
+                Destroy(gameObject);
+            }
+            else
+                gameObject.SetActive(false);
+        }
+        #endregion
     }
 }
