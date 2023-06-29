@@ -33,7 +33,6 @@ namespace BamGame
         #region [Variable] TransForm
         public Vector3 Position;
         public Vector3 Scale;
-        public Quaternion Rotation;
         #endregion
 
 
@@ -47,8 +46,56 @@ namespace BamGame
         //------------------------------------------------------------------------------------------------------------------------------------------------------
         #endregion
 
+        #region [Property] [Transform] Rotation
+        //------------------------------------------------------------------------------------------------------------------------------------------------------
+        public virtual float LocalRotationY
+        {
+            get => LocalRotation.eulerAngles.y;
+            set => LocalRotation = Quaternion.Euler(0f, value, 0f);
+        }
+        //------------------------------------------------------------------------------------------------------------------------------------------------------
+        public virtual Quaternion LocalRotation
+        {
+            get => transform.localRotation;
+            set => transform.localRotation = value;
+        }
+        //------------------------------------------------------------------------------------------------------------------------------------------------------
+        public virtual float RotationY
+        {
+            get => Rotation.eulerAngles.y;
+            set => Rotation = Quaternion.Euler(0f, value, 0f);
+        }
+        //------------------------------------------------------------------------------------------------------------------------------------------------------
+        public virtual Quaternion Rotation
+        {
+            get => transform.rotation;
+            set => transform.rotation = value;
+        }
+        //------------------------------------------------------------------------------------------------------------------------------------------------------
+        public virtual Vector3 ForwardDirection
+        {
+            get => transform.forward;
+            set => transform.rotation = Quaternion.LookRotation(value);
+        }
+        //------------------------------------------------------------------------------------------------------------------------------------------------------
+        public virtual Vector3 LocalForwardDirection
+        {
+            get => transform.worldToLocalMatrix.MultiplyVector(transform.forward);
+            set => transform.localRotation = Quaternion.LookRotation(value);
+        }
+        //------------------------------------------------------------------------------------------------------------------------------------------------------
+        public virtual Vector3 RightDirection => transform.right;
+        public virtual Vector3 UpDirection => transform.up;
+        #endregion
 
-
+        #region [Property] Visible
+        //------------------------------------------------------------------------------------------------------------------------------------------------------
+        public virtual void Show() => SetVisible(true);
+        public virtual void Hide() => SetVisible(false);
+        public virtual void SetVisible(bool visible) => gameObject.SetActive(visible);
+        public virtual bool IsVisible => gameObject.activeSelf;
+        public virtual bool IsActive => gameObject.activeSelf;
+        #endregion
 
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // 0. Base Methods
@@ -57,20 +104,23 @@ namespace BamGame
 
         #region [Init] 
         //------------------------------------------------------------------------------------------------------------------------------------------------------
-        #endregion
-
         #region [Virtual] Awake
         public virtual void Awake() { }
         #endregion
 
         #region [Virtual] Start
+        //------------------------------------------------------------------------------------------------------------------------------------------------------
         public virtual void Start() { }
         #endregion
-
-
-        #region [Enable] 
-        //------------------------------------------------------------------------------------------------------------------------------------------------------
         #endregion
+
+
+        #region [Enable & Disable] 
+        //------------------------------------------------------------------------------------------------------------------------------------------------------
+        public virtual void OnEnable() { }
+        public virtual void OnDisable() { }
+        #endregion
+
 
     }
 
