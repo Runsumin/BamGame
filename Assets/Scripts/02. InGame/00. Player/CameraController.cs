@@ -39,13 +39,13 @@ namespace Game
             public Vector3 OffsetPos;
             public Vector3 OffsetRot;
             public Transform Follow;
-            public float MixX;
-            public float MaxX;
-            public float Distance;
-            public float ZoomSpeed;
-            public float MaxDisY;
-            public float MinDisY;
-            public float CamRotSpeed;
+            public float MixX;          // 거리 최소값
+            public float MaxX;          // 거리 최대값
+            public float Distance;      // 카메라 거리  
+            public float ZoomSpeed;     // 마우스 휠 줌 속도
+            public float MaxDisY;       // Y축 이동 최소값
+            public float MinDisY;       // Y축 이동 최대값
+            public float CamRotSpeed;   // 카메라 회전 속도
         }
         public NCameraSetting CamSetting = new NCameraSetting();
         #endregion
@@ -68,9 +68,6 @@ namespace Game
         private float finaly;
         #endregion
 
-        public Camera CurrentCameraController;
-
-
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // Property
         //
@@ -82,6 +79,14 @@ namespace Game
         // 0. Base Methods
         //
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+        #region [Init] Start
+        public void Start()
+        {
+            transform.position = CamSetting.OffsetPos;
+            transform.rotation = Quaternion.Euler(CamSetting.OffsetRot);
+        }
+        #endregion
 
         #region [Update]
         void Update()
@@ -114,10 +119,7 @@ namespace Game
 
             if (Input.GetMouseButtonUp(1))
             {
-                //JEventHandler.ExecuteEvent(JEvents.OnTouchUp);
 
-                //if (_mousePosition == _mouseDownPosition)
-                //    JEventHandler.ExecuteEvent(JEvents.OnTouchClick);
             }
 
         }
@@ -140,7 +142,7 @@ namespace Game
             var rotation = Quaternion.Euler(_xRotate, _yRotate, 0);
             var position = rotation * (new Vector3(0, 0, -CamSetting.Distance)) + (CamSetting.Follow.position);
             transform.position = position;
-            transform.LookAt(CamSetting.Follow.position + new Vector3(0, 10, 0));
+            transform.LookAt(CamSetting.Follow.position);
 
         }
         #endregion
