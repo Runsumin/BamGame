@@ -56,6 +56,10 @@ namespace Game
         private Vector3 fixforward = new Vector3(0, 0, 1);
         #endregion
 
+        #region [Variable] Input Delay
+        private bool InputAble;   // 현재 입력이 가능한지.
+
+        #endregion
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // 0. Base Methods
         //
@@ -77,11 +81,13 @@ namespace Game
         }
         #endregion
 
+        #region [FixedUpdate]
         private void FixedUpdate()
         {
             Move();
         }
 
+        #endregion
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // 1. Player Input
         //
@@ -106,6 +112,21 @@ namespace Game
             {
                 PlayerDirection = new Vector3(transform.forward.z, 0, -transform.forward.x);
             }
+        }
+        #endregion
+
+        #region [PlayerInput] DelayInput
+        private void InputDelay()
+        {
+            var instance = TileMap_StageBase.Instance;
+            if (instance == null) return;
+
+            // 현재 플레이어 위치
+            var playerposition = transform.position;
+            // 현재 플레이어가 위치한 타일 위치
+            var nowPlayerTile = instance.WorldToTile(playerposition);
+            var nowtile = instance.GetTileBase((int)nowPlayerTile.x, (int)nowPlayerTile.z);
+
         }
         #endregion
 

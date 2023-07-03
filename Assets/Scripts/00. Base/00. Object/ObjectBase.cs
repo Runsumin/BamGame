@@ -31,8 +31,6 @@ namespace Game
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
         #region [Variable] TransForm
-        public Vector3 Position;
-        public Vector3 Scale;
         #endregion
 
 
