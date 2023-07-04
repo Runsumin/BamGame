@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Game
+namespace HSM.Game
 {
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     //
@@ -31,11 +31,11 @@ namespace Game
 
         #region [NestedClass] Setting
         //------------------------------------------------------------------------------------------------------------------------------------------------------
-        [Serializable]
-        public class NItemBase
-        {
-        }
-        public NItemBase Setting = new NItemBase();
+        //[Serializable]
+        //public class NItemBase
+        //{
+        //}
+        //public NItemBase Setting = new NItemBase();
         #endregion
 
 

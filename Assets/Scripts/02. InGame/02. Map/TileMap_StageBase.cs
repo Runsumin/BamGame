@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Game
+namespace HSM.Game
 {
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     //
@@ -113,11 +113,11 @@ namespace Game
 
         #region [Coordinate]
         public Vector3 WorldToTile(Vector3 worldPos) => new Vector3(WorldToTileX(worldPos.x), 0f, WorldToTileZ(worldPos.z));
-        public Vector3 TileToWorld(Vector3 tilePos) => new Vector3(TileToWorldX(tilePos.x), -0.05f, TileToWorldX(tilePos.z));
-        public Vector3 TileToWorld(int tileX, int tileZ) => new Vector3(TileToWorldX(tileX), 0f, TileToWorldX(tileZ));
+        public Vector3 TileToWorld(Vector3 tilePos) => new Vector3(TileToWorldX(tilePos.x), -0.05f, TileToWorldZ(tilePos.z));
+        public Vector3 TileToWorld(int tileX, int tileZ) => new Vector3(TileToWorldX(tileX), 0f, TileToWorldZ(tileZ));
         //------------------------------------------------------------------------------------------------------------------------------------------------------
-        public float WorldToTileX(float worldPosX) => (int)(((worldPosX + 0.5f) - Setting.TileStartX) / Setting.TileWidth);
-        public float WorldToTileZ(float worldPosZ) => (int)(((worldPosZ + 0.5f) - Setting.TileStartZ) / Setting.TileHeight);
+        public float WorldToTileX(float worldPosX) => (int)(((worldPosX) - Setting.TileStartX) / Setting.TileWidth);
+        public float WorldToTileZ(float worldPosZ) => (int)(((worldPosZ) - Setting.TileStartZ) / Setting.TileHeight);
         public float TileToWorldX(float tileX) => -Setting.TileStartX + (tileX * Setting.TileWidth);
         public float TileToWorldZ(float tileZ) => -Setting.TileStartZ + (tileZ * Setting.TileHeight);
         #endregion
@@ -131,19 +131,20 @@ namespace Game
             return _tileList[index];
         }
 
-        //public TileBase GetNeighborTile(Vector3 tilePosition, eMoveDirection moveDir)
-        //{
-        //    TileBase tileMap = null;
-        //    switch (moveDir)
-        //    {
-        //        case eMoveDirection.Left: tileMap = GetTileBase((int)tilePosition.x - 1, (int)tilePosition.z); break;
-        //        case eMoveDirection.Up: tileMap = GetTileBase((int)tilePosition.x, (int)tilePosition.z + 1); break;
-        //        case eMoveDirection.Down: tileMap = GetTileBase((int)tilePosition.x, (int)tilePosition.z - 1); break;
-        //        case eMoveDirection.Right: tileMap = GetTileBase((int)tilePosition.x + 1, (int)tilePosition.z); break;
-        //    }
+        public TileBase GetNeighborTile(Vector3 tilePosition, Player.eDirection moveDir)
+        {
+            TileBase tileMap = null;
+            switch (moveDir)
+            {
 
-        //    return tileMap;
-        //}
+                case Player.eDirection.FORWARD: tileMap = GetTileBase((int)tilePosition.x, (int)tilePosition.z + 1); break;
+                case Player.eDirection.BACK: tileMap = GetTileBase((int)tilePosition.x, (int)tilePosition.z - 1); break;
+                case Player.eDirection.LEFT: tileMap = GetTileBase((int)tilePosition.x - 1, (int)tilePosition.z); break;
+                case Player.eDirection.RIGHT: tileMap = GetTileBase((int)tilePosition.x + 1, (int)tilePosition.z); break;
+            }
+
+            return tileMap;
+        }
         #endregion
 
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
