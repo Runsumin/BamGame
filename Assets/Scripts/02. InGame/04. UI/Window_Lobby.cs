@@ -71,6 +71,31 @@ namespace HSM.Game
         }
 
         #endregion
+
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        // 1. Button
+        //
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+        #region [Button] GameStart
+        public void OnClick_GameStart()
+        {
+            SceneManager.Instance.LoadScene("BamGame_InGame");
+            CloseWindow(true);
+
+        }
+        #endregion
+
+        #region [Button] GameEnd
+        public void OnClick_GameEnd()
+        {
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#endif
+            Application.Quit();
+        }
+        #endregion
+
     }
 
 }

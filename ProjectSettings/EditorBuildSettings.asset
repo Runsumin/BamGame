@@ -11,4 +11,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/BamGame_Lobby.unity
     guid: 645bac9589e2d224ab6ca4c1c37fc1c4
+  - enabled: 1
+    path: Assets/Scenes/BamGame_InGame.unity
+    guid: 2b1cba63bd680374f965214c8a168826
   m_configObjects: {}

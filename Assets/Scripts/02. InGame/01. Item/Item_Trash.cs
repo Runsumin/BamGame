@@ -62,6 +62,8 @@ namespace HSM.Game
 
         #region [Property] Base
         //------------------------------------------------------------------------------------------------------------------------------------------------------
+        public int TileIndexX => (int)TileMap_StageBase.Instance.WorldToTileX(transform.position.x);
+        public int TileIndexZ => (int)TileMap_StageBase.Instance.WorldToTileZ(transform.position.z);
         #endregion
 
 

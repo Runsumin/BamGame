@@ -111,13 +111,13 @@ namespace HSM.Game
         //
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-        #region [Coordinate]
+        #region [Coordinate]a    
         public Vector3 WorldToTile(Vector3 worldPos) => new Vector3(WorldToTileX(worldPos.x), 0f, WorldToTileZ(worldPos.z));
         public Vector3 TileToWorld(Vector3 tilePos) => new Vector3(TileToWorldX(tilePos.x), -0.05f, TileToWorldZ(tilePos.z));
         public Vector3 TileToWorld(int tileX, int tileZ) => new Vector3(TileToWorldX(tileX), 0f, TileToWorldZ(tileZ));
         //------------------------------------------------------------------------------------------------------------------------------------------------------
-        public float WorldToTileX(float worldPosX) => (int)(((worldPosX) - Setting.TileStartX) / Setting.TileWidth);
-        public float WorldToTileZ(float worldPosZ) => (int)(((worldPosZ) - Setting.TileStartZ) / Setting.TileHeight);
+        public float WorldToTileX(float worldPosX) => (int)(((worldPosX + 0.1f) - Setting.TileStartX) / Setting.TileWidth);
+        public float WorldToTileZ(float worldPosZ) => (int)(((worldPosZ + 0.1f) - Setting.TileStartZ) / Setting.TileHeight);
         public float TileToWorldX(float tileX) => -Setting.TileStartX + (tileX * Setting.TileWidth);
         public float TileToWorldZ(float tileZ) => -Setting.TileStartZ + (tileZ * Setting.TileHeight);
         #endregion

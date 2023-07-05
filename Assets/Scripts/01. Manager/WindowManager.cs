@@ -53,6 +53,7 @@ namespace HSM.Game
         //------------------------------------------------------------------------------------------------------------------------------------------------------
         public void Awake()
         {
+            Instance = this;
             //DontDestroyOnLoad(gameObject);
         }
         void Start()

@@ -19,10 +19,22 @@ namespace HSM.Game
         //
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+        #region [Enum] Player Direction
         public enum eDirection
         {
             FORWARD, BACK, LEFT, RIGHT, Max
         }
+        #endregion
+
+        #region [Enum] Player InputSetting
+        public enum ePlayerInputState
+        {
+            Mouse, KeyBoard
+        }
+        #endregion
+
+#region [Enum] 
+#endregion
 
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // Nested Class
@@ -35,6 +47,7 @@ namespace HSM.Game
         {
             public float Speed;
             public float Delaytime;
+            public ePlayerInputState InputSetting;
         }
         #endregion
         public NPlayerSetting playerSetting = new NPlayerSetting();
@@ -98,10 +111,18 @@ namespace HSM.Game
         #region [Update]
         void Update()
         {
-            InputDelay();           // À¯Àú ÀÎÇ² µô·¹ÀÌ Á¶Àý
-            PlayerInput();          // À¯Àú ÀÎÇ² 
-            PlayerRouteCheck();      // °æ·Î ÀúÀå
-            SetPlayerDirection();
+            //InputDelay();           // À¯Àú ÀÎÇ² µô·¹ÀÌ Á¶Àý
+            switch (playerSetting.InputSetting)
+            {
+                case ePlayerInputState.Mouse:
+                    SetPlayerDirection();
+                    break;
+                case ePlayerInputState.KeyBoard:
+                    PlayerInput();          // À¯Àú ÀÎÇ² 
+                    break;
+            }
+            PlayerRouteCheck();     // °æ·Î ÀúÀå
+            GameEndCheck();         // °ÔÀÓ Á¾·á Ã¼Å©
         }
         #endregion
 
@@ -120,56 +141,56 @@ namespace HSM.Game
         #region [PlayerInput] KeyInput
         private void PlayerInput()
         {
-            if (Input.GetKeyDown(KeyCode.A))
-            {
-                PlayerDirection = new Vector3(-transform.forward.z, 0, transform.forward.x);
-                PlayerDir = eDirection.LEFT;
-            }
-            if (Input.GetKeyDown(KeyCode.D))
-            {
-                PlayerDirection = new Vector3(transform.forward.z, 0, -transform.forward.x);
-                PlayerDir = eDirection.RIGHT;
-            }
-            if (Input.GetKeyDown(KeyCode.W))
-            {
-                PlayerDirection = transform.forward;
-                PlayerDir = eDirection.FORWARD;
-            }
-            if (Input.GetKeyDown(KeyCode.S))
-            {
-                PlayerDirection = -transform.forward;
-                PlayerDir = eDirection.BACK;
-            }
-
-            //switch (PlayerDir)
+            //if (Input.GetKeyDown(KeyCode.A))
             //{
-            //    case eDirection.FORWARD:
-            //    case eDirection.BACK:
-            //        if (Input.GetKeyDown(KeyCode.A))
-            //        {
-            //            PlayerDirection = new Vector3(-transform.forward.z, 0, transform.forward.x);
-            //            PlayerDir = eDirection.LEFT;
-            //        }
-            //        if (Input.GetKeyDown(KeyCode.D))
-            //        {
-            //            PlayerDirection = new Vector3(transform.forward.z, 0, -transform.forward.x);
-            //            PlayerDir = eDirection.RIGHT;
-            //        }
-            //        break;
-            //    case eDirection.LEFT:
-            //    case eDirection.RIGHT:
-            //        if (Input.GetKeyDown(KeyCode.W))
-            //        {
-            //            PlayerDirection = transform.forward;
-            //            PlayerDir = eDirection.FORWARD;
-            //        }
-            //        if (Input.GetKeyDown(KeyCode.S))
-            //        {
-            //            PlayerDirection = -transform.forward;
-            //            PlayerDir = eDirection.BACK;
-            //        }
-            //        break;
+            //    PlayerDirection = new Vector3(-transform.forward.z, 0, transform.forward.x);
+            //    PlayerDir = eDirection.LEFT;
             //}
+            //if (Input.GetKeyDown(KeyCode.D))
+            //{
+            //    PlayerDirection = new Vector3(transform.forward.z, 0, -transform.forward.x);
+            //    PlayerDir = eDirection.RIGHT;
+            //}
+            //if (Input.GetKeyDown(KeyCode.W))
+            //{
+            //    PlayerDirection = transform.forward;
+            //    PlayerDir = eDirection.FORWARD;
+            //}
+            //if (Input.GetKeyDown(KeyCode.S))
+            //{
+            //    PlayerDirection = -transform.forward;
+            //    PlayerDir = eDirection.BACK;
+            //}
+
+            switch (PlayerDir)
+            {
+                case eDirection.FORWARD:
+                case eDirection.BACK:
+                    if (Input.GetKeyDown(KeyCode.A))
+                    {
+                        PlayerDirection = new Vector3(-transform.forward.z, 0, transform.forward.x);
+                        PlayerDir = eDirection.LEFT;
+                    }
+                    if (Input.GetKeyDown(KeyCode.D))
+                    {
+                        PlayerDirection = new Vector3(transform.forward.z, 0, -transform.forward.x);
+                        PlayerDir = eDirection.RIGHT;
+                    }
+                    break;
+                case eDirection.LEFT:
+                case eDirection.RIGHT:
+                    if (Input.GetKeyDown(KeyCode.W))
+                    {
+                        PlayerDirection = transform.forward;
+                        PlayerDir = eDirection.FORWARD;
+                    }
+                    if (Input.GetKeyDown(KeyCode.S))
+                    {
+                        PlayerDirection = -transform.forward;
+                        PlayerDir = eDirection.BACK;
+                    }
+                    break;
+            }
         }
         #endregion
 
@@ -246,9 +267,17 @@ namespace HSM.Game
         private void Move()
         {
             flowTime += Time.deltaTime;
-            if(flowTime >= playerSetting.Delaytime)
+            if (flowTime >= playerSetting.Delaytime)
             {
-                transform.position = MoveByTile(PlayerDir);
+                switch (playerSetting.InputSetting)
+                {
+                    case ePlayerInputState.Mouse:
+                        transform.position = MoveByTile(CameraDir);
+                        break;
+                    case ePlayerInputState.KeyBoard:
+                        transform.position = MoveByTile(PlayerDir);
+                        break;
+                }
                 flowTime = 0;
             }
         }
@@ -258,6 +287,12 @@ namespace HSM.Game
         private Vector3 MoveByTile(eDirection dir)
         {
             var targetTile = TileMap_StageBase.Instance.GetNeighborTile(NowPlayerTilePos, dir);
+
+            if (targetTile == null)
+            {
+                UnityEditor.EditorApplication.isPlaying = false;
+                return new Vector3(0, 0, 0);
+            }
 
             var final = targetTile.gameObject.transform.position;
 
@@ -275,6 +310,31 @@ namespace HSM.Game
         #region [Player_Collision] TriggerEnter
 
         #endregion
+
+        public void GameEndCheck()
+        {
+            // Àå¾Ö¹°
+            if (NowPlayerTile.TileBaseSetting.TileType == TileBase.eTileType.Obstacle)
+            {
+                UnityEditor.EditorApplication.isPlaying = false;
+            }
+            // ²¿¸®
+            foreach (var data in PlayerTail)
+            {
+                var nowtailtile = TileMap_StageBase.Instance.GetTileBase(data.TileIndexX, data.TileIndexZ);
+                // ²¿¸®¿Í Àå¾Ö¹°
+                if (nowtailtile.TileBaseSetting.TileType == TileBase.eTileType.Obstacle)
+                {
+                    UnityEditor.EditorApplication.isPlaying = false;
+                }
+                // ²¿¸®¿Í ÇÃ·¹ÀÌ¾î
+                if (nowtailtile.TileIndexX == NowPlayerTileIndexX && nowtailtile.TileIndexZ == NowPlayerTileIndexZ)
+                {
+                    UnityEditor.EditorApplication.isPlaying = false;
+                }
+            }
+            // ÇÃ·¹ÀÌ¾î¿Í ²¿¸®
+        }
 
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // 3. Player Root
