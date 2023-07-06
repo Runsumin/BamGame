@@ -1,18 +1,47 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Scene_InGame : MonoBehaviour
+namespace HSM.Game
 {
-    // Start is called before the first frame update
-    void Start()
+    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    //
+    // Scene_Lobby
+    //
+    //
+    //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    public class Scene_InGame : SceneBase
     {
-        
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        // Nested Class
+        //
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+        #region [NestedClass] Setting
+        //------------------------------------------------------------------------------------------------------------------------------------------------------
+        [Serializable]
+        public class NSceneBase
+        {
+            public GameObject Window_InGame;
+        }
+        public NSceneBase SceneBase = new NSceneBase();
+        #endregion
+
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        // 0. Base Methods
+        //
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+        #region [Init] 
+        //------------------------------------------------------------------------------------------------------------------------------------------------------
+        public override void Start()
+        {
+            base.Start();
+            Instantiate(SceneBase.Window_InGame, WindowManager.Instance.CanvasRoot);
+        }
+        #endregion
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }

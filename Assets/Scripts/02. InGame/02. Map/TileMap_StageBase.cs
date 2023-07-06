@@ -7,10 +7,16 @@ namespace HSM.Game
 {
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     //
-    // TileMap
+    // TileMapBase
     // 
     //
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+    public enum eTileType
+    {
+        Quad, Hexa
+    }
+
 
     public class TileMap_StageBase : ObjectBase
     {
@@ -47,6 +53,11 @@ namespace HSM.Game
         protected TileBase EndTile;
         #endregion
 
+        #region [Variable] TileMapType
+        public eTileType TileMapType;
+        public float HexTileMapXOffSet;     // Çí»ç°ï Å¸ÀÏ È¦¼ö¿­ X°ª ¿ÀÇÁ¼Â
+        public float HexTileMapZOffSet;     // Çí»ç°ï Å¸ÀÏ È¦¼ö¿­ Z°ª ¿ÀÇÁ¼Â
+        #endregion
 
 
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -87,20 +98,30 @@ namespace HSM.Game
         {
             var tileMaps = TileRoot.GetComponentsInChildren<TileBase>();
             var mapsize = tileMaps.Length;
+
+            int indexX = 0;
+            int indexZ = 0;
+
             if (mapsize > 0)
             {
                 _tileList = new TileBase[mapsize];
-                for(int i = 0; i < mapsize; i++)
+                for (int i = 0; i < mapsize; i++)
                 {
-                    tileMaps[i].TileBaseSetting.TileIndex = i;
-                    tileMaps[i].TileBaseSetting.TileWidth = 5f;
-                    tileMaps[i].TileBaseSetting.TileHeight = 5f;
+
+                    tileMaps[i].TileBaseSetting.TileIndex.x = indexX;
+                    tileMaps[i].TileBaseSetting.TileIndex.y = indexZ;
+                    tileMaps[i].TileBaseSetting.TileWidth = Setting.TileWidth;
+                    tileMaps[i].TileBaseSetting.TileHeight = Setting.TileHeight;
 
                     var tile = tileMaps[i];
-                    var tilex = tile.TileIndexX;
-                    var tilez = tile.TileIndexZ;
+                    _tileList[indexZ * Setting.TileCountX + indexX] = tile;
 
-                    _tileList[tilez * Setting.TileCountX + tilex] = tile;
+                    indexX++;
+                    if (indexX == Setting.TileCountX)
+                    {
+                        indexX = 0;
+                        indexZ++;
+                    }
                 }
             }
         }
@@ -111,13 +132,13 @@ namespace HSM.Game
         //
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-        #region [Coordinate]a    
-        public Vector3 WorldToTile(Vector3 worldPos) => new Vector3(WorldToTileX(worldPos.x), 0f, WorldToTileZ(worldPos.z));
+        #region [Coordinate]     
+        //public Vector3 WorldToTile(Vector3 worldPos) => new Vector3(WorldToTileX(worldPos.x), 0f, WorldToTileZ(worldPos.z));
         public Vector3 TileToWorld(Vector3 tilePos) => new Vector3(TileToWorldX(tilePos.x), -0.05f, TileToWorldZ(tilePos.z));
         public Vector3 TileToWorld(int tileX, int tileZ) => new Vector3(TileToWorldX(tileX), 0f, TileToWorldZ(tileZ));
         //------------------------------------------------------------------------------------------------------------------------------------------------------
-        public float WorldToTileX(float worldPosX) => (int)(((worldPosX + 0.1f) - Setting.TileStartX) / Setting.TileWidth);
-        public float WorldToTileZ(float worldPosZ) => (int)(((worldPosZ + 0.1f) - Setting.TileStartZ) / Setting.TileHeight);
+        //public float WorldToTileX(float worldPosX) => (int)(((worldPosX + 0.1f) - Setting.TileStartX) / Setting.TileWidth);
+        //public float WorldToTileZ(float worldPosZ) => (int)(((worldPosZ + 0.1f) - Setting.TileStartZ) / Setting.TileHeight);
         public float TileToWorldX(float tileX) => -Setting.TileStartX + (tileX * Setting.TileWidth);
         public float TileToWorldZ(float tileZ) => -Setting.TileStartZ + (tileZ * Setting.TileHeight);
         #endregion
@@ -141,6 +162,85 @@ namespace HSM.Game
                 case Player.eDirection.BACK: tileMap = GetTileBase((int)tilePosition.x, (int)tilePosition.z - 1); break;
                 case Player.eDirection.LEFT: tileMap = GetTileBase((int)tilePosition.x - 1, (int)tilePosition.z); break;
                 case Player.eDirection.RIGHT: tileMap = GetTileBase((int)tilePosition.x + 1, (int)tilePosition.z); break;
+            }
+
+            return tileMap;
+        }
+        #endregion
+
+        #region [HexCoordinate]
+        public Vector3 WorldToTile(Vector3 worldPos) => new Vector3(WorldToTileX(worldPos.x), 0f, WorldToTileZ(worldPos.z));
+
+        public float WorldToTileX(float worldPosX)
+        {
+            float result = 0f;
+            switch (TileMapType)
+            {
+                case eTileType.Quad:
+                    result = (int)(((worldPosX + 0.1f) - Setting.TileStartX) / Setting.TileWidth);
+                    break;
+                case eTileType.Hexa:
+                    break;
+            }
+
+            return result;// (int)(((worldPosX + 0.1f) - Setting.TileStartX) / Setting.TileWidth);
+        }
+        public float WorldToTileZ(float worldPosZ)
+        {
+            float result = 0f;
+            switch (TileMapType)
+            {
+                case eTileType.Quad:
+                    result = (int)(((worldPosZ + 0.1f) - Setting.TileStartZ) / Setting.TileHeight);
+                    break;
+                case eTileType.Hexa:
+                    {
+                        var len = worldPosZ - Setting.TileCountZ;
+
+                        
+                        if(len % 2 == 0)
+                        {
+
+                        }
+
+                    }
+                    break;
+            }
+            return result;// = (int)(((worldPosZ + 0.1f) - Setting.TileStartZ) / Setting.TileHeight);
+        }
+        #endregion
+
+        #region [HexTileMap]
+        public TileBase GetNeighborHexTile(Vector3 tilePosition, Player.eHexaDirection moveDir)
+        {
+            TileBase tileMap = null;
+            switch (moveDir)
+            {
+
+                case Player.eHexaDirection.FORWARD_LEFT:
+                    {
+                        //Â¦
+                        if (tilePosition.z % 2 == 0)
+                            tileMap = GetTileBase((int)tilePosition.x, (int)tilePosition.z + 1);
+                        //È¦
+                        else
+                            tileMap = GetTileBase((int)tilePosition.x - 1, (int)tilePosition.z + 1);
+                    }
+                    break;
+                case Player.eHexaDirection.FORWARD_RIGHT: tileMap = GetTileBase((int)tilePosition.x + 1, (int)tilePosition.z + 1); break;
+                case Player.eHexaDirection.LEFT: tileMap = GetTileBase((int)tilePosition.x - 1, (int)tilePosition.z); break;
+                case Player.eHexaDirection.RIGHT: tileMap = GetTileBase((int)tilePosition.x + 1, (int)tilePosition.z); break;
+                case Player.eHexaDirection.BACK_LEFT:
+                    {
+                        //Â¦
+                        if (tilePosition.z % 2 == 0)
+                            tileMap = GetTileBase((int)tilePosition.x, (int)tilePosition.z - 1);
+                        //È¦
+                        else
+                            tileMap = GetTileBase((int)tilePosition.x - 1, (int)tilePosition.z - 1);
+                    }
+                    break;
+                case Player.eHexaDirection.BACK_RIGHT: tileMap = GetTileBase((int)tilePosition.x + 1, (int)tilePosition.z - 1); break;
             }
 
             return tileMap;

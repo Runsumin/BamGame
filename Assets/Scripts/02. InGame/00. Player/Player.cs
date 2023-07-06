@@ -26,6 +26,11 @@ namespace HSM.Game
         }
         #endregion
 
+        public enum eHexaDirection
+        {
+            FORWARD_LEFT, FORWARD_RIGHT, LEFT, RIGHT, BACK_LEFT, BACK_RIGHT
+        }
+
         #region [Enum] Player InputSetting
         public enum ePlayerInputState
         {
@@ -33,8 +38,8 @@ namespace HSM.Game
         }
         #endregion
 
-#region [Enum] 
-#endregion
+        #region [Enum] 
+        #endregion
 
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // Nested Class
@@ -49,8 +54,8 @@ namespace HSM.Game
             public float Delaytime;
             public ePlayerInputState InputSetting;
         }
-        #endregion
         public NPlayerSetting playerSetting = new NPlayerSetting();
+        #endregion
 
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // Variable
@@ -65,8 +70,11 @@ namespace HSM.Game
 
         public eDirection PlayerDir;        // 플레이어 방향
         public eDirection CameraDir;        // 카메라가 바라보는 방향
+        public eHexaDirection CameraDirHex;        // 카메라가 바라보는 방향
 
         private Vector3 fixforward = new Vector3(0, 0, 1);
+        private Vector3 PlayerNextMovePosition;
+        private Vector3 PlayerBeforeMovePosition;
         #endregion
 
         #region [Variable] Input Delay
@@ -79,7 +87,8 @@ namespace HSM.Game
         #endregion
 
         #region [Variable] PlayerRoot
-        public List<Vector3> PlayerRoute = new List<Vector3>();
+        // Key : BeforePosition, Value : NextPosition;
+        public List<PositionChange> PlayerRoute = new List<PositionChange>();
         #endregion
 
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -105,6 +114,12 @@ namespace HSM.Game
             base.Start();
             PlayerDir = eDirection.FORWARD;
             PlayerDirection = Vector3.forward;
+            PlayerNextMovePosition = MoveByTile(CameraDir);
+            PlayerBeforeMovePosition = transform.position;
+
+            //
+            PositionChange data = new PositionChange(transform.position, transform.position);
+            PlayerRoute.Add(data);
         }
         #endregion
 
@@ -115,7 +130,7 @@ namespace HSM.Game
             switch (playerSetting.InputSetting)
             {
                 case ePlayerInputState.Mouse:
-                    SetPlayerDirection();
+                    SetPlayerDirectionByCamera();
                     break;
                 case ePlayerInputState.KeyBoard:
                     PlayerInput();          // 유저 인풋 
@@ -226,7 +241,7 @@ namespace HSM.Game
         #endregion
 
         #region [DirectionSetting] SetPlayerDirection
-        public void SetPlayerDirection()
+        public void SetPlayerDirectionByCamera()
         {
             var CamDir = GetCameraDirection();
             var playerdir = fixforward;
@@ -267,17 +282,27 @@ namespace HSM.Game
         private void Move()
         {
             flowTime += Time.deltaTime;
-            if (flowTime >= playerSetting.Delaytime)
+            if (flowTime <= playerSetting.Delaytime)
             {
+                transform.position = Vector3.Lerp(PlayerBeforeMovePosition, PlayerNextMovePosition, flowTime);
+            }
+            else
+            {
+                PlayerBeforeMovePosition = transform.position;
                 switch (playerSetting.InputSetting)
                 {
                     case ePlayerInputState.Mouse:
-                        transform.position = MoveByTile(CameraDir);
+                        PlayerNextMovePosition = MoveByTile(CameraDir);
                         break;
                     case ePlayerInputState.KeyBoard:
-                        transform.position = MoveByTile(PlayerDir);
+                        PlayerNextMovePosition = MoveByTile(PlayerDir);
                         break;
                 }
+                // 경로 저장
+
+                PositionChange data = new PositionChange(PlayerBeforeMovePosition, PlayerNextMovePosition);
+                PlayerRoute.Add(data);
+
                 flowTime = 0;
             }
         }
@@ -296,9 +321,8 @@ namespace HSM.Game
 
             var final = targetTile.gameObject.transform.position;
 
-            PlayerRoute.Add(transform.position);
-
-            return new Vector3(final.x - 2.5f, transform.position.y, final.z + 2.5f);
+            //return new Vector3(final.x - 2.5f, transform.position.y, final.z + 2.5f);
+            return new Vector3(final.x, transform.position.y, final.z);
         }
         #endregion
 
@@ -307,14 +331,14 @@ namespace HSM.Game
         //
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-        #region [Player_Collision] TriggerEnter
+        #region [Player_Collision] TriggerEnter 
 
         #endregion
 
         public void GameEndCheck()
         {
             // 장애물
-            if (NowPlayerTile.TileBaseSetting.TileType == TileBase.eTileType.Obstacle)
+            if (NowPlayerTile.TileBaseSetting.TileProperty == TileBase.eTileProperty.Obstacle)
             {
                 UnityEditor.EditorApplication.isPlaying = false;
             }
@@ -323,15 +347,15 @@ namespace HSM.Game
             {
                 var nowtailtile = TileMap_StageBase.Instance.GetTileBase(data.TileIndexX, data.TileIndexZ);
                 // 꼬리와 장애물
-                if (nowtailtile.TileBaseSetting.TileType == TileBase.eTileType.Obstacle)
+                if (nowtailtile.TileBaseSetting.TileProperty == TileBase.eTileProperty.Obstacle)
                 {
                     UnityEditor.EditorApplication.isPlaying = false;
                 }
                 // 꼬리와 플레이어
-                if (nowtailtile.TileIndexX == NowPlayerTileIndexX && nowtailtile.TileIndexZ == NowPlayerTileIndexZ)
-                {
-                    UnityEditor.EditorApplication.isPlaying = false;
-                }
+                //if (nowtailtile.TileIndexX == NowPlayerTileIndexX && nowtailtile.TileIndexZ == NowPlayerTileIndexZ)
+                //{
+                //    UnityEditor.EditorApplication.isPlaying = false;
+                //}
             }
             // 플레이어와 꼬리
         }
@@ -347,7 +371,8 @@ namespace HSM.Game
             var cnt = PlayerTail.Count;
             for (int i = 0; i < cnt; i++)
             {
-                PlayerTail[i].transform.position = PlayerRoute[PlayerRoute.Count - 1 - i];
+                PlayerTail[i].transform.position = Vector3.Lerp(PlayerRoute[PlayerRoute.Count - 1 - i].BeforePosition,
+                    PlayerRoute[PlayerRoute.Count - 1 - i].NextPosition, flowTime);
             }
         }
         #endregion

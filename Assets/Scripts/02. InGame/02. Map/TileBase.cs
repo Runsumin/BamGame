@@ -20,7 +20,7 @@ namespace HSM.Game
         //
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-        public enum eTileType
+        public enum eTileProperty
         {
             None,
             Start, 
@@ -40,8 +40,8 @@ namespace HSM.Game
         {
             public float TileWidth;
             public float TileHeight;
-            public int TileIndex;
-            public eTileType TileType;
+            public Vector2 TileIndex;
+            public eTileProperty TileProperty;
         }
         public NTileBaseSetting TileBaseSetting = new NTileBaseSetting();
         #endregion
@@ -52,6 +52,7 @@ namespace HSM.Game
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
         #region [Variable]
+        public eTileType TileType;
         #endregion
 
 
@@ -61,8 +62,8 @@ namespace HSM.Game
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
         #region [Property]
-        public int TileIndexX => (int)TileMap_StageBase.Instance.WorldToTileX(transform.position.x);
-        public int TileIndexZ => (int)TileMap_StageBase.Instance.WorldToTileZ(transform.position.z);
+        public int TileIndexX => (int)TileBaseSetting.TileIndex.x;//.(int)TileMap_StageBase.Instance.WorldToTileX(transform.position.x);
+        public int TileIndexZ => (int)TileBaseSetting.TileIndex.y;//TileMap_StageBase.Instance.WorldToTileZ(transform.position.z);
         #endregion
 
 

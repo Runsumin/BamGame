@@ -12,6 +12,15 @@ namespace HSM.Game
     //
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+    public class PositionChange
+    {
+        public Vector3 BeforePosition;
+        public Vector3 NextPosition;
+
+        public PositionChange(Vector3 before, Vector3 Next) { BeforePosition = before; NextPosition = Next; }
+    }
+
+
     public class Item_Trash : InterObject_Base
     {
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -53,6 +62,10 @@ namespace HSM.Game
         public int Index;
         #endregion
 
+        #region [Variable] Move
+        public Vector3 NextPosition;
+        public Vector3 BeforePosition;
+        #endregion
 
 
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -118,7 +131,7 @@ namespace HSM.Game
                         playerTail.Add(this);
                         Item_TrashState = eTrashState.PlayerStack;
                         transform.SetParent(other.transform);
-                        transform.position = playerRoute[playerRoute.Count - playerTail.Count];
+                        transform.position = playerRoute[playerRoute.Count - playerTail.Count].BeforePosition;
                         break;
                     case InterObject_Base.etype.Obstacle:
                         break;
