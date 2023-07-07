@@ -41,6 +41,7 @@ namespace HSM.Game
             public float TileWidth;
             public float TileHeight;
             public Vector2 TileIndex;
+            public Vector3 TileWorldPos;
             public eTileProperty TileProperty;
         }
         public NTileBaseSetting TileBaseSetting = new NTileBaseSetting();

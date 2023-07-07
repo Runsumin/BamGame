@@ -99,7 +99,7 @@ namespace HSM.Game
         #region [Property] TileMap Coordinate
         public int NowPlayerTileIndexX => (int)TileMap_StageBase.Instance.WorldToTileX(transform.position.x);
         public int NowPlayerTileIndexZ => (int)TileMap_StageBase.Instance.WorldToTileZ(transform.position.z);
-        public Vector3 NowPlayerTilePos => TileMap_StageBase.Instance.WorldToTile(transform.position);
+        public Vector3 NowPlayerTilePos => TileMap_StageBase.Instance.WorldToHexTileIndex(transform.position);
         public TileBase NowPlayerTile => TileMap_StageBase.Instance.GetTileBase(NowPlayerTileIndexX, NowPlayerTileIndexZ);
         #endregion
 
@@ -114,7 +114,7 @@ namespace HSM.Game
             base.Start();
             PlayerDir = eDirection.FORWARD;
             PlayerDirection = Vector3.forward;
-            PlayerNextMovePosition = MoveByTile(CameraDir);
+            PlayerNextMovePosition = MoveByHexTile(CameraDirHex);
             PlayerBeforeMovePosition = transform.position;
 
             //
@@ -218,7 +218,7 @@ namespace HSM.Game
             // 현재 플레이어 위치
             var playerposition = transform.position;
             // 현재 플레이어가 위치한 타일 위치
-            var nowPlayerTile = instance.WorldToTile(playerposition);
+            var nowPlayerTile = instance.WorldToHexTileIndex(playerposition);
             var nowtile = instance.GetTileBase((int)nowPlayerTile.x, (int)nowPlayerTile.z);
             Debug.Log(" x : " + nowtile.TileIndexX + " z : " + nowtile.TileIndexZ);
 
@@ -251,30 +251,70 @@ namespace HSM.Game
             float sign = Mathf.Sign(Vector3.Dot(CamDir, playerdirright));
             float finalAngle = sign * angle;
 
+            switch (TileMap_StageBase.Instance.TileMapType)
+            {
+                case eTileType.Quad:
+                    if (finalAngle > -45 && finalAngle < 45)
+                    {
+                        CameraDir = eDirection.FORWARD;
+                        transform.forward = Vector3.forward;
+                    }
+                    // Right
+                    else if (finalAngle >= 45 && finalAngle < 135)
+                    {
+                        CameraDir = eDirection.RIGHT;
+                        transform.forward = Vector3.right;
+                    }
+                    // Back
+                    else if (finalAngle >= 135 || finalAngle < -135)
+                    {
+                        CameraDir = eDirection.BACK;
+                        transform.forward = Vector3.back;
+                    }
+                    // Left
+                    else if (finalAngle >= -135 && finalAngle <= -45)
+                    {
+                        CameraDir = eDirection.LEFT;
+                        transform.forward = Vector3.left;
+                    }
+                    break;
+                case eTileType.Hexa:
+                    if (finalAngle > 0 && finalAngle < 60)
+                    {
+                        CameraDirHex = eHexaDirection.FORWARD_RIGHT;
+                        transform.rotation = Quaternion.Euler(new Vector3(0, 30, 0));
+                    }
+                    else if (finalAngle >= 60 && finalAngle < 120)
+                    {
+                        CameraDirHex = eHexaDirection.RIGHT;
+                        transform.rotation = Quaternion.Euler(new Vector3(0, 90, 0));
+                    }
+                    else if (finalAngle >= 120 && finalAngle <= 180)
+                    {
+                        CameraDirHex = eHexaDirection.BACK_RIGHT;
+                        transform.forward = Vector3.back;
+                        transform.rotation = Quaternion.Euler(new Vector3(0, 150, 0));
+                    }
+                    else if (finalAngle >= -180 && finalAngle < -120)
+                    {
+                        CameraDirHex = eHexaDirection.BACK_LEFT;
+                        transform.rotation = Quaternion.Euler(new Vector3(0, 210, 0));
+                    }
+                    else if (finalAngle >= -120 && finalAngle < -60)
+                    {
+                        CameraDirHex = eHexaDirection.LEFT;
+                        transform.rotation = Quaternion.Euler(new Vector3(0, 270, 0));
+                    }
+                    else if (finalAngle >= -60 && finalAngle <= 0)
+                    {
+                        CameraDirHex = eHexaDirection.FORWARD_LEFT;
+                        transform.rotation = Quaternion.Euler(new Vector3(0, 330, 0));
+                    }
+                    break;
+            }
+
             // Forward
-            if (finalAngle > -45 && finalAngle < 45)
-            {
-                CameraDir = eDirection.FORWARD;
-                transform.forward = Vector3.forward;
-            }
-            // Right
-            else if (finalAngle >= 45 && finalAngle < 135)
-            {
-                CameraDir = eDirection.RIGHT;
-                transform.forward = Vector3.right;
-            }
-            // Back
-            else if (finalAngle >= 135 || finalAngle < -135)
-            {
-                CameraDir = eDirection.BACK;
-                transform.forward = Vector3.back;
-            }
-            // Left
-            else if (finalAngle >= -135 && finalAngle <= -45)
-            {
-                CameraDir = eDirection.LEFT;
-                transform.forward = Vector3.left;
-            }
+
         }
         #endregion
 
@@ -292,7 +332,15 @@ namespace HSM.Game
                 switch (playerSetting.InputSetting)
                 {
                     case ePlayerInputState.Mouse:
-                        PlayerNextMovePosition = MoveByTile(CameraDir);
+                        switch (TileMap_StageBase.Instance.TileMapType)
+                        {
+                            case eTileType.Quad:
+                                PlayerNextMovePosition = MoveByTile(CameraDir);
+                                break;
+                            case eTileType.Hexa:
+                                PlayerNextMovePosition = MoveByHexTile(CameraDirHex);
+                                break;
+                        }
                         break;
                     case ePlayerInputState.KeyBoard:
                         PlayerNextMovePosition = MoveByTile(PlayerDir);
@@ -321,8 +369,23 @@ namespace HSM.Game
 
             var final = targetTile.gameObject.transform.position;
 
+            return new Vector3(final.x - 2.5f, transform.position.y, final.z + 2.5f);
+        }
+
+        private Vector3 MoveByHexTile(eHexaDirection dir)
+        {
+            var targetTile = TileMap_StageBase.Instance.GetNeighborHexTile(NowPlayerTilePos, dir);
+
+            if (targetTile == null)
+            {
+                UnityEditor.EditorApplication.isPlaying = false;
+                return new Vector3(0, 0, 0);
+            }
+
+            var final = targetTile.gameObject.transform.position;
+
             //return new Vector3(final.x - 2.5f, transform.position.y, final.z + 2.5f);
-            return new Vector3(final.x, transform.position.y, final.z);
+            return new Vector3(final.x, 1, final.z);
         }
         #endregion
 
