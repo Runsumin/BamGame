@@ -60,6 +60,9 @@ namespace HSM.Game
         public Vector3 OriginPosition;
         #endregion
 
+        #region [Variable] PlayerState
+        public Player.ePlayerState playerState;
+        #endregion
 
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // Property
@@ -93,6 +96,8 @@ namespace HSM.Game
         }
         #endregion
 
+        #region [Update]
+        #endregion
 
         #region [Init] Init TileMap
         private void InitTileMap()
@@ -205,8 +210,6 @@ namespace HSM.Game
 
                 roughXZ + new Vector3Int(oddRow ? +1 : -1,0,-1),
                 roughXZ + new Vector3Int(+0,0,-1),
-
-
             };
 
             Vector3Int closestXZ = roughXZ;

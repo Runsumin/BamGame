@@ -38,7 +38,11 @@ namespace HSM.Game
         }
         #endregion
 
-        #region [Enum] 
+        #region [Enum] Player State
+        public enum ePlayerState
+        {
+            Start, Playing, Goal,
+        }
         #endregion
 
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -99,8 +103,15 @@ namespace HSM.Game
         #region [Property] TileMap Coordinate
         public int NowPlayerTileIndexX => (int)TileMap_StageBase.Instance.WorldToTileX(transform.position.x);
         public int NowPlayerTileIndexZ => (int)TileMap_StageBase.Instance.WorldToTileZ(transform.position.z);
-        public Vector3 NowPlayerTilePos => TileMap_StageBase.Instance.WorldToHexTileIndex(transform.position);
+        public Vector3 NowPlayerTilePos => TileMap_StageBase.Instance.WorldToTile(transform.position);
         public TileBase NowPlayerTile => TileMap_StageBase.Instance.GetTileBase(NowPlayerTileIndexX, NowPlayerTileIndexZ);
+        #endregion
+
+        #region [Property] HexTileMap Coordinate
+        public int NowPlayerHexTileIndexX => TileMap_StageBase.Instance.WorldToHexTileIndex(transform.position).x;
+        public int NowPlayerHexTileIndexZ => TileMap_StageBase.Instance.WorldToHexTileIndex(transform.position).z;
+        public Vector3 NowPlayerHexTilePos => TileMap_StageBase.Instance.WorldToHexTileIndex(transform.position);
+        public TileBase NowPlayerHexTile => TileMap_StageBase.Instance.GetTileBase(NowPlayerHexTileIndexX, NowPlayerHexTileIndexZ);
         #endregion
 
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -114,8 +125,8 @@ namespace HSM.Game
             base.Start();
             PlayerDir = eDirection.FORWARD;
             PlayerDirection = Vector3.forward;
-            PlayerNextMovePosition = MoveByHexTile(CameraDirHex);
             PlayerBeforeMovePosition = transform.position;
+            PlayerNextMovePosition = transform.position;
 
             //
             PositionChange data = new PositionChange(transform.position, transform.position);
@@ -126,7 +137,6 @@ namespace HSM.Game
         #region [Update]
         void Update()
         {
-            //InputDelay();           // 유저 인풋 딜레이 조절
             switch (playerSetting.InputSetting)
             {
                 case ePlayerInputState.Mouse:
@@ -136,15 +146,14 @@ namespace HSM.Game
                     PlayerInput();          // 유저 인풋 
                     break;
             }
+            Move();                 // 플레이어 이동
             PlayerRouteCheck();     // 경로 저장
-            GameEndCheck();         // 게임 종료 체크
         }
         #endregion
 
         #region [FixedUpdate]
         private void FixedUpdate()
         {
-            Move();
         }
 
         #endregion
@@ -209,22 +218,6 @@ namespace HSM.Game
         }
         #endregion
 
-        #region [PlayerInput] DelayInput
-        private void InputDelay()
-        {
-            var instance = TileMap_StageBase.Instance;
-            if (instance == null) return;
-
-            // 현재 플레이어 위치
-            var playerposition = transform.position;
-            // 현재 플레이어가 위치한 타일 위치
-            var nowPlayerTile = instance.WorldToHexTileIndex(playerposition);
-            var nowtile = instance.GetTileBase((int)nowPlayerTile.x, (int)nowPlayerTile.z);
-            Debug.Log(" x : " + nowtile.TileIndexX + " z : " + nowtile.TileIndexZ);
-
-        }
-        #endregion
-
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // 1. Player Direction Setting
         //
@@ -233,6 +226,8 @@ namespace HSM.Game
         #region [DirectionSetting] GetCameraDirection
         public Vector3 GetCameraDirection()
         {
+            Debug.Log("현재타일 : " + NowPlayerHexTilePos);
+
             var CamDirection = transform.position - Cameratrs.transform.position;
             var camdirnor = new Vector3(CamDirection.x, 0, CamDirection.z).normalized;
 
@@ -351,6 +346,8 @@ namespace HSM.Game
                 PositionChange data = new PositionChange(PlayerBeforeMovePosition, PlayerNextMovePosition);
                 PlayerRoute.Add(data);
 
+                GameEndCheck();         // 게임 종료 체크
+
                 flowTime = 0;
             }
         }
@@ -374,7 +371,7 @@ namespace HSM.Game
 
         private Vector3 MoveByHexTile(eHexaDirection dir)
         {
-            var targetTile = TileMap_StageBase.Instance.GetNeighborHexTile(NowPlayerTilePos, dir);
+            var targetTile = TileMap_StageBase.Instance.GetNeighborHexTile(NowPlayerHexTilePos, dir);
 
             if (targetTile == null)
             {
@@ -400,27 +397,56 @@ namespace HSM.Game
 
         public void GameEndCheck()
         {
-            // 장애물
-            if (NowPlayerTile.TileBaseSetting.TileProperty == TileBase.eTileProperty.Obstacle)
+            switch (TileMap_StageBase.Instance.TileMapType)
             {
-                UnityEditor.EditorApplication.isPlaying = false;
+                case eTileType.Quad:
+                    // 장애물
+                    if (NowPlayerTile.TileBaseSetting.TileProperty == TileBase.eTileProperty.Obstacle)
+                    {
+                        UnityEditor.EditorApplication.isPlaying = false;
+                    }
+                    // 꼬리
+                    foreach (var data in PlayerTail)
+                    {
+                        var tileindex = TileMap_StageBase.Instance.WorldToTile(data.transform.position);
+                        var nowtailtile = TileMap_StageBase.Instance.GetTileBase(NowPlayerTileIndexX, NowPlayerTileIndexZ);
+                        // 꼬리와 장애물
+                        if (nowtailtile.TileBaseSetting.TileProperty == TileBase.eTileProperty.Obstacle)
+                        {
+                            UnityEditor.EditorApplication.isPlaying = false;
+                        }
+                        //// 꼬리와 플레이어
+                        //if (nowtailtile.TileIndexX == NowPlayerTileIndexX && nowtailtile.TileIndexZ == NowPlayerTileIndexZ)
+                        //{
+                        //    UnityEditor.EditorApplication.isPlaying = false;
+                        //}
+                    }
+                    break;
+                case eTileType.Hexa:
+                    // 장애물
+                    if (NowPlayerHexTile.TileBaseSetting.TileProperty == TileBase.eTileProperty.Obstacle)
+                    {
+                        UnityEditor.EditorApplication.isPlaying = false;
+                    }
+                    // 꼬리
+                    foreach (var data in PlayerTail)
+                    {
+                        var tileindex = TileMap_StageBase.Instance.WorldToHexTileIndex(data.transform.position);
+                        var nowtailtile = TileMap_StageBase.Instance.GetTileBase(tileindex.x, tileindex.z);
+                        // 꼬리와 장애물
+                        if (nowtailtile.TileBaseSetting.TileProperty == TileBase.eTileProperty.Obstacle)
+                        {
+                            UnityEditor.EditorApplication.isPlaying = false;
+                        }
+                        // 꼬리와 플레이어
+                        if (nowtailtile.TileIndexX == NowPlayerHexTileIndexX && nowtailtile.TileIndexZ == NowPlayerHexTileIndexZ)
+                        {
+                            UnityEditor.EditorApplication.isPlaying = false;
+                        }
+                    }
+                    break;
             }
-            // 꼬리
-            foreach (var data in PlayerTail)
-            {
-                var nowtailtile = TileMap_StageBase.Instance.GetTileBase(data.TileIndexX, data.TileIndexZ);
-                // 꼬리와 장애물
-                if (nowtailtile.TileBaseSetting.TileProperty == TileBase.eTileProperty.Obstacle)
-                {
-                    UnityEditor.EditorApplication.isPlaying = false;
-                }
-                // 꼬리와 플레이어
-                //if (nowtailtile.TileIndexX == NowPlayerTileIndexX && nowtailtile.TileIndexZ == NowPlayerTileIndexZ)
-                //{
-                //    UnityEditor.EditorApplication.isPlaying = false;
-                //}
-            }
-            // 플레이어와 꼬리
+
         }
 
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -434,8 +460,8 @@ namespace HSM.Game
             var cnt = PlayerTail.Count;
             for (int i = 0; i < cnt; i++)
             {
-                PlayerTail[i].transform.position = Vector3.Lerp(PlayerRoute[PlayerRoute.Count - 1 - i].BeforePosition,
-                    PlayerRoute[PlayerRoute.Count - 1 - i].NextPosition, flowTime);
+                PlayerTail[i].transform.position = Vector3.Lerp(PlayerRoute[PlayerRoute.Count - 2 - i].BeforePosition,
+                    PlayerRoute[PlayerRoute.Count - 2 - i].NextPosition, flowTime);
             }
         }
         #endregion
