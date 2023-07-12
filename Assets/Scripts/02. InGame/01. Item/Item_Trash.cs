@@ -57,14 +57,14 @@ namespace HSM.Game
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
         #region [Variable] Base
-        private Collider ItemCollision;
         public eTrashState Item_TrashState;
         public int Index;
         #endregion
 
-        #region [Variable] Move
+        #region [Variable] Position
         public Vector3 NextPosition;
         public Vector3 BeforePosition;
+        public Vector3 InitPosition;
         #endregion
 
 
@@ -75,8 +75,6 @@ namespace HSM.Game
 
         #region [Property] Base
         //------------------------------------------------------------------------------------------------------------------------------------------------------
-        //public int TileIndexX => (int)TileMap_StageBase.Instance.WorldToTileX(transform.position.x);
-        //public int TileIndexZ => (int)TileMap_StageBase.Instance.WorldToTileZ(transform.position.z);
         #endregion
 
 
@@ -87,19 +85,23 @@ namespace HSM.Game
         //
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-        #region [Init] 
+        #region [Init] Start
         //------------------------------------------------------------------------------------------------------------------------------------------------------
         public override void Start()
         {
             base.Start();
             ObjectType = InterObject_Base.etype.Item;
             Item_TrashState = eTrashState.OnField;
-            ItemCollision = GetComponent<Collider>();
-            if (ItemCollision == null)
-            {
-                gameObject.AddComponent<Collider>();
-                ItemCollision = GetComponent<Collider>();
-            }
+            InitPosition = transform.localPosition;
+        }
+        #endregion
+
+        #region [Init] ReSetItemState
+        public void ReSetItem_TrashState()
+        {
+            ObjectType = InterObject_Base.etype.Item;
+            Item_TrashState = eTrashState.OnField;
+            transform.position = InitPosition;
         }
         #endregion
 
@@ -110,6 +112,8 @@ namespace HSM.Game
             Destroy(gameObject);
         }
         #endregion
+
+
 
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // 1. Item Collision
@@ -123,7 +127,6 @@ namespace HSM.Game
                 var playerTail = other.gameObject.GetComponent<Player>().PlayerTail;
                 var playerRoute = other.gameObject.GetComponent<Player>().PlayerRoute;
 
-                var playerdir = other.gameObject.GetComponent<Player>().PlayerDir;
                 switch (ObjectType)
                 {
                     case InterObject_Base.etype.Item:

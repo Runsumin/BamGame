@@ -7,7 +7,7 @@ namespace HSM.Game
 {
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     //
-    // __template_base__
+    // Window_Lobby
     //
     //
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -80,7 +80,7 @@ namespace HSM.Game
         #region [Button] GameStart
         public void OnClick_GameStart()
         {
-            SceneManager.Instance.LoadScene("BamGame_InGame");
+            SceneManager.Instance.LoadScene("BamGame_InGame_Hex");
             CloseWindow(true);
 
         }

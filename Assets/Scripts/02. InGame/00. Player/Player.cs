@@ -157,6 +157,13 @@ namespace HSM.Game
         }
 
         #endregion
+
+        #region [Init] ResetState
+        public void ReSetPlayerState()
+        {
+
+        }
+        #endregion      
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // 1. Player Input
         //

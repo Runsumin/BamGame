@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -23,6 +24,17 @@ namespace HSM.Game
         //
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+        #region [NestedClass] Setting
+        //------------------------------------------------------------------------------------------------------------------------------------------------------
+        [Serializable]
+        public class NSetting
+        {
+            public GameObject Result;
+        }
+        public NSetting Setting = new NSetting();
+        #endregion
+
+
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // Variable
         //
@@ -38,6 +50,44 @@ namespace HSM.Game
         //  
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+        #region [Init] 
+        //------------------------------------------------------------------------------------------------------------------------------------------------------
+        public override void Awake()
+        {
+            base.Start();
+        }
+
+        public override void Start()
+        {
+            base.Start();
+        }
+        #endregion
+
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        // 1. Button
+        //  
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+        #region [Button] RePlay
+        public void OnClick_Replay()
+        {
+
+        }
+        #endregion
+
+        #region [Button] GoToMainMenu
+        public void OnClick_GoToMainMenu()
+        {
+
+        }
+        #endregion
+
+        #region [Button] LevelSelect
+        public void OnClick_LevelSelect()
+        {
+
+        }
+        #endregion
     }
 
 }
