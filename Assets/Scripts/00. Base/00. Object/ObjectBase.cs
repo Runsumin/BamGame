@@ -107,17 +107,20 @@ namespace HSM.Game
         #endregion
 
 
-        #region Enable & Disable 
+        #region [Init] Enable & Disable 
         //------------------------------------------------------------------------------------------------------------------------------------------------------
         public virtual void OnEnable() { }
         public virtual void OnDisable() { }
         #endregion
 
-        #region Destroy
+        #region [Init] Destroy
         //------------------------------------------------------------------------------------------------------------------------------------------------------
         public virtual void Destroy() { }
         #endregion
 
+        #region [Init] Reset
+        public virtual void Reset() { }
+        #endregion
     }
 
 }

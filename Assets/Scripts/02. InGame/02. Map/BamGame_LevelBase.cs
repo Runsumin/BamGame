@@ -12,12 +12,6 @@ namespace HSM.Game
     //
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-    public enum GameState
-    {
-        Start, Playing, Pause, Restart
-    }
-
-
     public class BamGame_LevelBase : MonoBehaviour
     {
         public static BamGame_LevelBase Instance;

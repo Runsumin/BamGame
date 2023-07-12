@@ -449,7 +449,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 6815374461248509960}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 6852985992804051426}
+        m_TargetAssemblyTypeName: HSM.Game.Window_InGame, Assembly-CSharp
+        m_MethodName: OnClick_Replay
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &2774330754547556689
 GameObject:
   m_ObjectHideFlags: 0
@@ -562,7 +574,7 @@ GameObject:
   - component: {fileID: 7530964495614369239}
   - component: {fileID: 6002195846271586769}
   m_Layer: 5
-  m_Name: LevelSelect
+  m_Name: Continue
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -671,7 +683,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 7530964495614369239}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 6852985992804051426}
+        m_TargetAssemblyTypeName: HSM.Game.Window_InGame, Assembly-CSharp
+        m_MethodName: OnClick_Continue
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &4353204756576314601
 GameObject:
   m_ObjectHideFlags: 0
@@ -794,7 +818,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 3246042335767000183}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 6852985992804051426}
+        m_TargetAssemblyTypeName: HSM.Game.Window_InGame, Assembly-CSharp
+        m_MethodName: OnClick_Replay
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &4748294720516001170
 GameObject:
   m_ObjectHideFlags: 0
@@ -917,7 +953,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2236275435933890481}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 6852985992804051426}
+        m_TargetAssemblyTypeName: HSM.Game.Window_InGame, Assembly-CSharp
+        m_MethodName: OnClick_LevelSelect
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &4853092904493346791
 GameObject:
   m_ObjectHideFlags: 0
@@ -1679,7 +1727,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 6898137771430501892}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 6852985992804051426}
+        m_TargetAssemblyTypeName: HSM.Game.Window_InGame, Assembly-CSharp
+        m_MethodName: OnClick_GoToMainMenu
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &6037833670676948670
 GameObject:
   m_ObjectHideFlags: 0
@@ -2625,7 +2685,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2017098087632484084}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 6852985992804051426}
+        m_TargetAssemblyTypeName: HSM.Game.Window_InGame, Assembly-CSharp
+        m_MethodName: OnClick_GoToMainMenu
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &8677747098195057558
 GameObject:
   m_ObjectHideFlags: 0

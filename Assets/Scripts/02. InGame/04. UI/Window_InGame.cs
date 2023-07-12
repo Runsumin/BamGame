@@ -89,6 +89,7 @@ namespace HSM.Game
         #region [Button] Pause
         public void OnClick_Pause()
         {
+            Time.timeScale = 0f;
             Popup_Pause.Root.SetActive(true);
         }
 
@@ -113,6 +114,12 @@ namespace HSM.Game
 
         }
         #endregion
+
+        public void OnClick_Continue()
+        {
+            Time.timeScale = 1f;
+            Popup_Pause.Root.SetActive(false);
+        }
     }
 
 }
