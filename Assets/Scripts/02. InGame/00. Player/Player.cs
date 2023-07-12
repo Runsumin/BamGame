@@ -82,7 +82,6 @@ namespace HSM.Game
         #endregion
 
         #region [Variable] Input Delay
-        private bool InputAble;   // 현재 입력이 가능한지.        
         private float flowTime;
         #endregion
 
@@ -161,7 +160,19 @@ namespace HSM.Game
         #region [Init] ResetState
         public void ReSetPlayerState()
         {
+            // 위치 초기화
+            transform.position = BamGame_LevelBase.Instance.TransformSetting.StartTransform.position;
 
+            // 방향 초기화
+            CameraDirHex = eHexaDirection.FORWARD_LEFT;
+            PlayerBeforeMovePosition = transform.position;
+            PlayerNextMovePosition = transform.position;
+
+            // 꼬리 정보 초기화
+            PlayerTail.Clear();
+            PlayerRoute.Clear();
+            PositionChange data = new PositionChange(transform.position, transform.position);
+            PlayerRoute.Add(data);
         }
         #endregion      
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

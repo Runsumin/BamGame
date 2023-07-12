@@ -20,13 +20,12 @@ namespace HSM.Game
         //
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-        #region [NestedClass] Setting
+        #region [Nested] PopUpBase
         //------------------------------------------------------------------------------------------------------------------------------------------------------
-        //[Serializable]
-        //public class NSetting
-        //{
-        //}
-        //public NSetting Setting = new NSetting();
+        public class NPopUpBase
+        {
+            public GameObject Root;
+        }
         #endregion
 
 

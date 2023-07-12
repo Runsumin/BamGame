@@ -99,8 +99,12 @@ namespace HSM.Game
         #region [Init] ReSetItemState
         public void ReSetItem_TrashState()
         {
+            // 아이템 속성 초기화
             ObjectType = InterObject_Base.etype.Item;
             Item_TrashState = eTrashState.OnField;
+
+            // 위치 초기화
+            transform.parent = BamGame_LevelBase.Instance.RootSetting.MapRoot;
             transform.position = InitPosition;
         }
         #endregion

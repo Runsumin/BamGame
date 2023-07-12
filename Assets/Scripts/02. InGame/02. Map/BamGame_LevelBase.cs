@@ -12,6 +12,12 @@ namespace HSM.Game
     //
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+    public enum GameState
+    {
+        Start, Playing, Pause, Restart
+    }
+
+
     public class BamGame_LevelBase : MonoBehaviour
     {
         public static BamGame_LevelBase Instance;
@@ -40,8 +46,8 @@ namespace HSM.Game
         [Serializable]
         public class NTransformSet
         {
-            public Transform StartPosition;
-            public Transform GoalPosition;
+            public Transform StartTransform;
+            public Transform GoalTransform;
         }
         public NTransformSet TransformSetting = new NTransformSet();
         #endregion

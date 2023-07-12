@@ -29,12 +29,30 @@ namespace HSM.Game
         [Serializable]
         public class NSetting
         {
-            public GameObject Result;
+            public GameObject WindowRoot;
         }
         public NSetting Setting = new NSetting();
         #endregion
 
+        #region [Nested] Popup_Result
+        [Serializable]
+        public class NPopupResult : NPopUpBase
+        {
+            public GameObject Text_Clear;
+            public GameObject Text_Fail;
+        }
+        public NPopupResult Popup_Result = new NPopupResult();
+        #endregion
 
+
+        #region [Nested] Popup_Pause
+        [Serializable]
+        public class NPopupPause : NPopUpBase
+        {
+
+        }
+        public NPopupPause Popup_Pause = new NPopupPause();
+        #endregion
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // Variable
         //
@@ -68,6 +86,13 @@ namespace HSM.Game
         //  
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+        #region [Button] Pause
+        public void OnClick_Pause()
+        {
+            Popup_Pause.Root.SetActive(true);
+        }
+
+        #endregion
         #region [Button] RePlay
         public void OnClick_Replay()
         {

@@ -17,7 +17,6 @@ namespace HSM.Game
         Quad, Hexa
     }
 
-
     public class TileMap_StageBase : ObjectBase
     {
         public static TileMap_StageBase Instance;
