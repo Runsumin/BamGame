@@ -120,9 +120,15 @@ namespace HSM.Game
             base.Start();
             PlayerDir = eDirection.FORWARD;
             PlayerDirection = Vector3.forward;
+
+            var initpos = BamGame_LevelBase.Instance.TransformSetting.StartTransform.position;
+            InitPosition = new Vector3(initpos.x, 1, initpos.z);
+
+            transform.position = InitPosition;
+
             PlayerBeforeMovePosition = transform.position;
             PlayerNextMovePosition = transform.position;
-            InitPosition = BamGame_LevelBase.Instance.TransformSetting.StartTransform.position;
+
             //
             PositionChange data = new PositionChange(transform.position, transform.position);
             PlayerRoute.Add(data);
@@ -241,7 +247,7 @@ namespace HSM.Game
         #region [DirectionSetting] GetCameraDirection
         public Vector3 GetCameraDirection()
         {
-            Debug.Log("현재타일 : " + NowPlayerHexTilePos);
+            //Debug.Log("현재타일 : " + NowPlayerHexTilePos);
 
             var CamDirection = transform.position - Cameratrs.transform.position;
             var camdirnor = new Vector3(CamDirection.x, 0, CamDirection.z).normalized;
