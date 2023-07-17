@@ -39,7 +39,8 @@ namespace HSM.Game
         public override void Start()
         {
             base.Start();
-            Instantiate(SceneBase.Window_Lobby, WindowManager.Instance.CanvasRoot);
+            var win = SceneBase.Window_Lobby.GetComponent<WindowBase>();
+            WindowManager.Instance.GenerateWindow(win);
         }
         #endregion
     }

@@ -32,7 +32,7 @@ namespace HSM.Game
         #endregion
 
         #region [Variable] Base
-        protected List<WindowBase> windows = new List<WindowBase>();
+        public List<WindowBase> windows = new List<WindowBase>();
         #endregion
 
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -62,6 +62,13 @@ namespace HSM.Game
         }
         #endregion
 
+        #region [Init] Generate Window
+        public void GenerateWindow(WindowBase window)
+        {
+            window.InstantiateWindow(window.gameObject, CanvasRoot);
+            windows.Add(window);
+        }
+        #endregion
         #region [Window] Open
         public void OpenWindow(WindowBase window) => window.OpenWindow();
         #endregion
@@ -69,7 +76,6 @@ namespace HSM.Game
         #region [Window] Close
         public void CloseWindow(WindowBase window, bool destroy = true) => window.CloseWindow(destroy);
         #endregion
-
     }
 
 }

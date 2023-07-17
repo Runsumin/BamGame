@@ -97,7 +97,7 @@ namespace HSM.Game
         #endregion
 
         #region [Init] ReSetItemState
-        public void ReSetItem_TrashState()
+        public override void Reset()
         {
             // 아이템 속성 초기화
             ObjectType = InterObject_Base.etype.Item;

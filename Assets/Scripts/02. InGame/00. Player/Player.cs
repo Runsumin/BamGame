@@ -38,13 +38,6 @@ namespace HSM.Game
         }
         #endregion
 
-        #region [Enum] Player State
-        public enum ePlayerState
-        {
-            Start, Playing, Goal,
-        }
-        #endregion
-
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // Nested Class
         //
@@ -56,7 +49,6 @@ namespace HSM.Game
         {
             public float Speed;
             public float Delaytime;
-            public ePlayerInputState InputSetting;
         }
         public NPlayerSetting playerSetting = new NPlayerSetting();
         #endregion
@@ -76,6 +68,7 @@ namespace HSM.Game
         public eDirection CameraDir;        // 카메라가 바라보는 방향
         public eHexaDirection CameraDirHex;        // 카메라가 바라보는 방향
 
+        private Vector3 InitPosition;
         private Vector3 fixforward = new Vector3(0, 0, 1);
         private Vector3 PlayerNextMovePosition;
         private Vector3 PlayerBeforeMovePosition;
@@ -90,8 +83,11 @@ namespace HSM.Game
         #endregion
 
         #region [Variable] PlayerRoot
-        // Key : BeforePosition, Value : NextPosition;
         public List<PositionChange> PlayerRoute = new List<PositionChange>();
+        #endregion
+
+        #region [Variable] PlayerState 플레이어 이동 정지 상태
+        public bool PlayerGameEnd = false;
         #endregion
 
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -126,7 +122,7 @@ namespace HSM.Game
             PlayerDirection = Vector3.forward;
             PlayerBeforeMovePosition = transform.position;
             PlayerNextMovePosition = transform.position;
-
+            InitPosition = BamGame_LevelBase.Instance.TransformSetting.StartTransform.position;
             //
             PositionChange data = new PositionChange(transform.position, transform.position);
             PlayerRoute.Add(data);
@@ -136,17 +132,12 @@ namespace HSM.Game
         #region [Update]
         void Update()
         {
-            switch (playerSetting.InputSetting)
+            if (PlayerGameEnd == false)
             {
-                case ePlayerInputState.Mouse:
-                    SetPlayerDirectionByCamera();
-                    break;
-                case ePlayerInputState.KeyBoard:
-                    PlayerInput();          // 유저 인풋 
-                    break;
+                SetPlayerDirectionByCamera();
+                Move();                 // 플레이어 이동
+                PlayerRouteCheck();     // 경로 저장
             }
-            Move();                 // 플레이어 이동
-            PlayerRouteCheck();     // 경로 저장
         }
         #endregion
 
@@ -158,21 +149,27 @@ namespace HSM.Game
         #endregion
 
         #region [Init] ResetState
-        public void ReSetPlayerState()
+        public override void Reset()
         {
             // 위치 초기화
-            transform.position = BamGame_LevelBase.Instance.TransformSetting.StartTransform.position;
+            transform.position = InitPosition;
 
             // 방향 초기화
             CameraDirHex = eHexaDirection.FORWARD_LEFT;
             PlayerBeforeMovePosition = transform.position;
             PlayerNextMovePosition = transform.position;
 
+            // 시간 초기화
+            flowTime = 0f;
+
             // 꼬리 정보 초기화
             PlayerTail.Clear();
             PlayerRoute.Clear();
             PositionChange data = new PositionChange(transform.position, transform.position);
             PlayerRoute.Add(data);
+
+            // 플레이어 이동 상태
+            PlayerGameEnd = false;
         }
         #endregion      
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -341,31 +338,11 @@ namespace HSM.Game
             }
             else
             {
+                GameEndCheck();         // 게임 종료 체크
                 PlayerBeforeMovePosition = transform.position;
-                switch (playerSetting.InputSetting)
-                {
-                    case ePlayerInputState.Mouse:
-                        switch (TileMap_StageBase.Instance.TileMapType)
-                        {
-                            case eTileType.Quad:
-                                PlayerNextMovePosition = MoveByTile(CameraDir);
-                                break;
-                            case eTileType.Hexa:
-                                PlayerNextMovePosition = MoveByHexTile(CameraDirHex);
-                                break;
-                        }
-                        break;
-                    case ePlayerInputState.KeyBoard:
-                        PlayerNextMovePosition = MoveByTile(PlayerDir);
-                        break;
-                }
-                // 경로 저장
-
+                PlayerNextMovePosition = MoveByHexTile(CameraDirHex);
                 PositionChange data = new PositionChange(PlayerBeforeMovePosition, PlayerNextMovePosition);
                 PlayerRoute.Add(data);
-
-                GameEndCheck();         // 게임 종료 체크
-
                 flowTime = 0;
             }
         }
@@ -378,7 +355,8 @@ namespace HSM.Game
 
             if (targetTile == null)
             {
-                UnityEditor.EditorApplication.isPlaying = false;
+                PlayerGameEnd = true;
+                Window_InGame.Instance.ShowResult(false);
                 return new Vector3(0, 0, 0);
             }
 
@@ -391,9 +369,11 @@ namespace HSM.Game
         {
             var targetTile = TileMap_StageBase.Instance.GetNeighborHexTile(NowPlayerHexTilePos, dir);
 
-            if (targetTile == null)
+            if (targetTile == null && NowPlayerHexTile.TileBaseSetting.TileProperty != TileBase.eTileProperty.End)
             {
-                UnityEditor.EditorApplication.isPlaying = false;
+                PlayerGameEnd = true;
+                Window_InGame.Instance.ShowResult(false);
+                //UnityEditor.EditorApplication.isPlaying = false;
                 return new Vector3(0, 0, 0);
             }
 
@@ -415,13 +395,18 @@ namespace HSM.Game
 
         public void GameEndCheck()
         {
+            //var window_ingame = WindowManager.Instance.windows.Find(Window_InGame);
+
+            if (PlayerGameEnd)
+                return;
             switch (TileMap_StageBase.Instance.TileMapType)
             {
                 case eTileType.Quad:
                     // 장애물
                     if (NowPlayerTile.TileBaseSetting.TileProperty == TileBase.eTileProperty.Obstacle)
                     {
-                        UnityEditor.EditorApplication.isPlaying = false;
+                        PlayerGameEnd = true;
+                        Window_InGame.Instance.ShowResult(false);
                     }
                     // 꼬리
                     foreach (var data in PlayerTail)
@@ -431,7 +416,8 @@ namespace HSM.Game
                         // 꼬리와 장애물
                         if (nowtailtile.TileBaseSetting.TileProperty == TileBase.eTileProperty.Obstacle)
                         {
-                            UnityEditor.EditorApplication.isPlaying = false;
+                            PlayerGameEnd = true;
+                            Window_InGame.Instance.ShowResult(false);
                         }
                         //// 꼬리와 플레이어
                         //if (nowtailtile.TileIndexX == NowPlayerTileIndexX && nowtailtile.TileIndexZ == NowPlayerTileIndexZ)
@@ -444,7 +430,13 @@ namespace HSM.Game
                     // 장애물
                     if (NowPlayerHexTile.TileBaseSetting.TileProperty == TileBase.eTileProperty.Obstacle)
                     {
-                        UnityEditor.EditorApplication.isPlaying = false;
+                        PlayerGameEnd = true;
+                        Window_InGame.Instance.ShowResult(false);
+                    }
+                    else if (NowPlayerHexTile.TileBaseSetting.TileProperty == TileBase.eTileProperty.End)
+                    {
+                        PlayerGameEnd = true;
+                        Window_InGame.Instance.ShowResult(true);
                     }
                     // 꼬리
                     foreach (var data in PlayerTail)
@@ -454,12 +446,14 @@ namespace HSM.Game
                         // 꼬리와 장애물
                         if (nowtailtile.TileBaseSetting.TileProperty == TileBase.eTileProperty.Obstacle)
                         {
-                            UnityEditor.EditorApplication.isPlaying = false;
+                            PlayerGameEnd = true;
+                            Window_InGame.Instance.ShowResult(false);
                         }
                         // 꼬리와 플레이어
                         if (nowtailtile.TileIndexX == NowPlayerHexTileIndexX && nowtailtile.TileIndexZ == NowPlayerHexTileIndexZ)
                         {
-                            UnityEditor.EditorApplication.isPlaying = false;
+                            PlayerGameEnd = true;
+                            Window_InGame.Instance.ShowResult(false);
                         }
                     }
                     break;

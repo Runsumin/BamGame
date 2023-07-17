@@ -14,6 +14,7 @@ namespace HSM.Game
 
     public class ObjectManager : MonoBehaviour
     {
+        public static ObjectManager Instance;
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // Nested Class
         //
@@ -36,7 +37,7 @@ namespace HSM.Game
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
         #region [Variable] Base
-
+        public List<ObjectBase> AllObj = new List<ObjectBase>();
         #endregion
 
 
@@ -60,6 +61,23 @@ namespace HSM.Game
 
         #region [Init] 
         //------------------------------------------------------------------------------------------------------------------------------------------------------
+        private void Awake()
+        {
+            Instance = this;
+        }
+        #endregion
+
+        #region [Reset]
+        public void ResetAllObject()
+        {
+            var obj = GameObject.FindObjectsOfType<ObjectBase>();
+
+            foreach(var data in obj)
+            {
+                data.Reset();
+            }
+        }
+
         #endregion
     }
 

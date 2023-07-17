@@ -69,6 +69,13 @@ namespace HSM.Game
         public virtual void Start() { }
         #endregion
 
+        #region [Window] Instantiate WIndow Prefabs
+        public virtual void InstantiateWindow(GameObject obj, Transform parent)
+        {
+            Instantiate(obj, parent);
+        }
+        #endregion
+
         #region [Window] Open
         public virtual void OpenWindow()
         {

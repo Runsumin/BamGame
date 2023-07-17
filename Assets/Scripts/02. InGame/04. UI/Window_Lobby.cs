@@ -24,6 +24,8 @@ namespace HSM.Game
         [Serializable]
         public class NSetting
         {
+            public GameObject MainTitleRoot;
+            public GameObject StageSelectRoot;
         }
         public NSetting Setting = new NSetting();
         #endregion
@@ -80,9 +82,8 @@ namespace HSM.Game
         #region [Button] GameStart
         public void OnClick_GameStart()
         {
-            SceneManager.Instance.LoadScene("BamGame_InGame_Hex");
-            CloseWindow(true);
-
+            Setting.MainTitleRoot.SetActive(false);
+            Setting.StageSelectRoot.SetActive(true);
         }
         #endregion
 
@@ -96,6 +97,16 @@ namespace HSM.Game
         }
         #endregion
 
+        #region [Button] StageSelect
+        public void OnClick_StageSelect(int stage)
+        {
+            Setting.MainTitleRoot.SetActive(true);
+            Setting.StageSelectRoot.SetActive(false);
+            SceneManager.Instance.LoadScene("BamGame_InGame_Hex");
+            SceneManager.Instance.NowStageIndex = stage;
+            CloseWindow(true);
+        }
+        #endregion
     }
 
 }

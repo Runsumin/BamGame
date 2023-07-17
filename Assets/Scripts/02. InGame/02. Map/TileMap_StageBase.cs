@@ -59,10 +59,6 @@ namespace HSM.Game
         public Vector3 OriginPosition;
         #endregion
 
-        #region [Variable] PlayerState
-        public Player.ePlayerState playerState;
-        #endregion
-
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // Property
         //

@@ -37,7 +37,7 @@ namespace HSM.Game
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
         #region [Variable] Base
-
+        public int NowStageIndex;
         #endregion
 
 

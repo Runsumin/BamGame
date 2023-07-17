@@ -25,6 +25,7 @@ namespace HSM.Game
         public class NSceneBase
         {
             public GameObject Window_InGame;
+            public GameObject[] StageArray;
         }
         public NSceneBase SceneBase = new NSceneBase();
         #endregion
@@ -39,7 +40,20 @@ namespace HSM.Game
         public override void Start()
         {
             base.Start();
-            Instantiate(SceneBase.Window_InGame, WindowManager.Instance.CanvasRoot);
+            var win = SceneBase.Window_InGame.GetComponent<WindowBase>();
+            WindowManager.Instance.GenerateWindow(win);
+
+            int sel = 0;
+
+            foreach (var map in SceneBase.StageArray)
+            {
+                if (sel == SceneManager.Instance.NowStageIndex - 1)
+                    map.SetActive(true);
+                else
+                    map.SetActive(false);
+
+                sel++;
+            }
         }
         #endregion
     }
