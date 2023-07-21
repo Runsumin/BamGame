@@ -40,20 +40,20 @@ namespace HSM.Game
         public override void Start()
         {
             base.Start();
-            var win = SceneBase.Window_InGame.GetComponent<WindowBase>();
-            WindowManager.Instance.GenerateWindow(win);
+           // var win = SceneBase.Window_InGame.GetComponent<WindowBase>();
+           // WindowManager.Instance.GenerateWindow(win);
 
-            int sel = 0;
+            //int sel = 0;
 
-            foreach (var map in SceneBase.StageArray)
-            {
-                if (sel == SceneManager.Instance.NowStageIndex - 1)
-                    map.SetActive(true);
-                else
-                    map.SetActive(false);
+            //foreach (var map in SceneBase.StageArray)
+            //{
+            //    if (sel == SceneManager.Instance.NowStageIndex - 1)
+            //        map.SetActive(true);
+            //    else
+            //        map.SetActive(false);
 
-                sel++;
-            }
+            //    sel++;
+            //}
         }
         #endregion
     }

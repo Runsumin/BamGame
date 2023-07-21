@@ -267,7 +267,7 @@ namespace HSM.Game
             float sign = Mathf.Sign(Vector3.Dot(CamDir, playerdirright));
             float finalAngle = sign * angle;
 
-            switch (TileMap_StageBase.Instance.TileMapType)
+            switch (TileMap_StageBase.Instance.Setting.TileMapType)
             {
                 case eTileType.Quad:
                     if (finalAngle > -45 && finalAngle < 45)
@@ -405,7 +405,7 @@ namespace HSM.Game
 
             if (PlayerGameEnd)
                 return;
-            switch (TileMap_StageBase.Instance.TileMapType)
+            switch (TileMap_StageBase.Instance.Setting.TileMapType)
             {
                 case eTileType.Quad:
                     // Àå¾Ö¹°

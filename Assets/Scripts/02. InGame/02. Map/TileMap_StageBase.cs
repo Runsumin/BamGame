@@ -3,6 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace HSM.Game
 {
     //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -14,7 +18,7 @@ namespace HSM.Game
 
     public enum eTileType
     {
-        Quad, Hexa
+        Quad, Hexa, Rhombus
     }
 
     public class TileMap_StageBase : ObjectBase
@@ -36,24 +40,32 @@ namespace HSM.Game
             public float TileStartZ;
             public float TileWidth;
             public float TileHeight;
+            public eTileType TileMapType;
+            public Transform TileRoot;
         }
         public TileMapSetting Setting = new TileMapSetting();
         #endregion
 
+        #region [Nested] TilePrefabs
+        [Serializable]
+        public class NTIlePrefab
+        {
+            public GameObject BaseTile;
+        }
+        public NTIlePrefab TilePrefabs = new NTIlePrefab();
+        #endregion
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // Variable
         //
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
         #region [Variable] Base
-        public Transform TileRoot;
         protected TileBase[] _tileList;
         protected TileBase StartTile;
         protected TileBase EndTile;
         #endregion
 
         #region [Variable] TileMapType
-        public eTileType TileMapType;
         public float HexTileMapXOffSet;     // Çí»ç°ï Å¸ÀÏ È¦¼ö¿­ X°ª ¿ÀÇÁ¼Â
         public float HexTileMapZOffSet;     // Çí»ç°ï Å¸ÀÏ È¦¼ö¿­ Z°ª ¿ÀÇÁ¼Â
         public Vector3 OriginPosition;
@@ -97,7 +109,7 @@ namespace HSM.Game
         #region [Init] Init TileMap
         private void InitTileMap()
         {
-            var tileMaps = TileRoot.GetComponentsInChildren<TileBase>();
+            var tileMaps = Setting.TileRoot.GetComponentsInChildren<TileBase>();
             var mapsize = tileMaps.Length;
 
             int indexX = 0;
@@ -129,11 +141,49 @@ namespace HSM.Game
         }
         #endregion
 
+        #region [Init] Instantiate TileMap
+        public void InstantiateTileMap()
+        {
+            // Å¸ÀÏ¸Ê »ý¼º
+            for (int i = 0; i < Setting.TileCountZ; i++)
+            {
+                for (int j = 0; j < Setting.TileCountX; j++)
+                {
+                    TileBase tile = new TileBase();
+                    Vector3 worldpos = Vector3.zero;
+                    switch (Setting.TileMapType)
+                    {
+                        case eTileType.Quad:
+                            worldpos = new Vector3(j * Setting.TileWidth + Setting.TileStartX, 0, i * Setting.TileHeight + Setting.TileStartZ);
+                            break;
+                        case eTileType.Rhombus:
+                            worldpos = new Vector3(j * Setting.TileWidth + Setting.TileStartX, 0,
+                                (i * Setting.TileHeight + Setting.TileStartZ) * HexTileMapXOffSet)
+                            + ((Mathf.Abs(i) % 2) == 1 ? new Vector3(1, 0, 0) * Setting.TileWidth * .5f : Vector3.zero);
+                            break;
+                    }
+                    tile.TileBaseSetting.TileWidth = Setting.TileWidth;
+                    tile.TileBaseSetting.TileHeight = Setting.TileHeight;
+                    tile.TileBaseSetting.TileIndex = new Vector2(j, i);
+                    tile.TileBaseSetting.TileWorldPos = worldpos;
+                    tile.TileBaseSetting.TileProperty = TileBase.eTileProperty.Road;
+                    tile.TileBaseSetting.TileType = Setting.TileMapType;
+
+                    var tilebase = Instantiate(TilePrefabs.BaseTile, worldpos, Quaternion.identity, Setting.TileRoot);
+                    tilebase.GetComponent<TileBase>().TileBaseSetting = tile.TileBaseSetting;
+                    tilebase.name = "tilebase" + new Vector2Int((int)tile.TileBaseSetting.TileIndex.x,
+                        (int)tile.TileBaseSetting.TileIndex.y);
+                }
+            }
+
+        }
+        #endregion
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // 1. Coordinate
         //
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+        #region [QuadTile]
         #region [Coordinate]     
         public Vector3 WorldToTile(Vector3 worldPos) => new Vector3(WorldToTileX(worldPos.x), 0f, WorldToTileZ(worldPos.z));
         public Vector3 TileToWorld(Vector3 tilePos) => new Vector3(TileToWorldX(tilePos.x), -0.05f, TileToWorldZ(tilePos.z));
@@ -145,16 +195,7 @@ namespace HSM.Game
         public float TileToWorldZ(float tileZ) => -Setting.TileStartZ + (tileZ * Setting.TileHeight);
         #endregion
 
-        #region [TileMap]
-
-        public TileBase GetTileBase(int tileX, int tileZ)
-        {
-            if ((tileX < 0) || (tileX >= Setting.TileCountX) || (tileZ < 0) || (tileZ >= Setting.TileCountZ))
-                return null;
-            int index = tileZ * Setting.TileCountX + tileX;
-            return _tileList[index];
-        }
-
+        #region [TileMap] GetNeighborTile
         public TileBase GetNeighborTile(Vector3 tilePosition, Player.eDirection moveDir)
         {
             TileBase tileMap = null;
@@ -170,7 +211,9 @@ namespace HSM.Game
             return tileMap;
         }
         #endregion
+        #endregion
 
+        #region [HexaTile]
         #region [HexCoordinate] Tile To World
         public Vector3 HexTileToWorldPosition(Vector3 pos)
         {
@@ -221,7 +264,7 @@ namespace HSM.Game
         }
         #endregion
 
-        #region [HexTileMap]
+        #region [HexTileMap] GetNeighborHexTile
         public TileBase GetNeighborHexTile(Vector3 tilePosition, Player.eHexaDirection moveDir)
         {
             TileBase tileMap = null;
@@ -275,7 +318,59 @@ namespace HSM.Game
             return tileMap;
         }
         #endregion
+        #endregion
 
+        #region [RhombusTile]
+        #region [RhombusTile] Tile To World
+        public Vector3 RhombusTileToWorld(Vector2Int index)
+        {
+            return new Vector3(index.x, 0, 0) * Setting.TileWidth +
+               new Vector3(0, 0, (index.y) * Setting.TileHeight * HexTileMapXOffSet) +
+               ((Mathf.Abs(index.y) % 2) == 1 ? new Vector3(1, 0, 0) * Setting.TileWidth * .5f : Vector3.zero) +
+               new Vector3(Setting.TileStartX, 0, Setting.TileStartZ * HexTileMapXOffSet);
+        }
+        #endregion        
+
+        #region [RhombusTile] World To Tile  
+        public Vector2Int WorldToRhombusTile(Vector3 pos)
+        {
+            int roughx = Mathf.RoundToInt((pos.x - Setting.TileStartX) / Setting.TileWidth);
+            int roughz = Mathf.RoundToInt((pos.z - Setting.TileStartZ * HexTileMapXOffSet) / Setting.TileHeight / HexTileMapXOffSet);
+
+            Vector2Int roughXZ = new Vector2Int(roughx, roughz);
+
+            bool oddRow = roughz % 2 == 1;
+
+            List<Vector2Int> neighbourXZList = new List<Vector2Int>
+            {
+                //
+                roughXZ + new Vector2Int(oddRow ? 0 : -1,+1),
+                roughXZ + new Vector2Int(oddRow ? +1 : 0,+1),
+                roughXZ + new Vector2Int(oddRow ? 0 : -1,-1),
+                roughXZ + new Vector2Int(oddRow ? +1 : 0,-1),
+            };
+
+            Vector2Int closestXZ = roughXZ;
+
+            foreach (Vector2Int data in neighbourXZList)
+            {
+                if (Vector3.Distance(pos, RhombusTileToWorld(data)) <
+                    Vector3.Distance(pos, RhombusTileToWorld(closestXZ)))
+                {
+                    closestXZ = data;
+                }
+            }
+            return closestXZ;
+        }
+        #endregion        
+
+        public TileBase GetNeighborRhombusTile(Vector3 pos)
+        {
+            TileBase tileMap = null;
+
+            return tileMap;
+        }
+        #endregion
         //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // 99. Utill
         //
@@ -283,8 +378,40 @@ namespace HSM.Game
 
         #region [Utill] 
         //------------------------------------------------------------------------------------------------------------------------------------------------------
+        #region [Tile] GetTileBase
+        public TileBase GetTileBase(int tileX, int tileZ)
+        {
+            if ((tileX < 0) || (tileX >= Setting.TileCountX) || (tileZ < 0) || (tileZ >= Setting.TileCountZ))
+                return null;
+            int index = tileZ * Setting.TileCountX + tileX;
+            return _tileList[index];
+        }
+        #endregion
         #endregion
 
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        // Editor 
+        //
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+        #region [Editor] GenerateTileMap
+#if UNITY_EDITOR
+        [CustomEditor(typeof(TileMap_StageBase))]
+        public class TileMapGenerate : Editor
+        {
+            public override void OnInspectorGUI()
+            {
+                base.OnInspectorGUI();
+
+                if (GUILayout.Button("GenerateTileMap"))
+                {
+                    var map = (TileMap_StageBase)target;
+                    map.InstantiateTileMap();
+                }
+            }
+        }
+#endif
+        #endregion
     }
 
 }
